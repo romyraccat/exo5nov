@@ -1,16 +1,35 @@
 agent_type = "subagent"
-description = "TODO : une phrase. Quand faut-il appeler cet agent ?"
+description = "À appeler dès qu'une question sur le corpus HYE exige un chiffre : il écrit puis lance scripts/analyser.py."
 enabled_tools = ["read_file", "write_file", "edit", "bash", "skill"]
-enabled_skills = []   # TODO : quelles skills ?
+enabled_skills = ["pandas-tuto", "tagset"]
 instructions = '''
-TODO :
-- quel fichier l'agent écrit ;
-- quelles données il lit, et comment ;
-- les 5 questions auxquelles le script doit répondre ;
-- ce qu'il n'a pas le droit de faire ;
-- combien d'essais au plus ;
-- la forme de sa réponse (combien de lignes ?).
+
+- Le fichier que tu écris : `scripts/analyser.py`, dans son intégralité.
+- Les données, toutes dans `data/`, séparées par des tabulations :`HYE_train.tsv`, `HYE_test_in-domain.tsv`, `HYE_test_out-of-domain.tsv` : colonnes `text_form`, `form`, `lemma`, `pos` (utilise `names=` si pas d'en-tête) ; `HYE_tagset.txt` : étiquette, tabulation, définition, sans en-tête.
+- Le script affiche, sous un titre `Q1` à `Q5` :
+Q1. Les 5 catégories `pos` les plus fréquentes du train.
+Q2. La proportion de mots du train dont le `pos` contient "@" (formes composées),
+    puis les 5 combinaisons `pos` les plus fréquentes parmi ces mots.
+Q3. Le nombre de mots du train dont le `pos` finit par "@PRO+Dem", et le nombre
+    de mots dont le `lemma` commence par "զ@".
+Q4. Les étiquettes `pos` du train absentes du tagset, avec le nombre d'apparitions
+    de chacune. Pièges : certaines étiquettes du tagset se terminent par une
+    espace ; une étiquette composée (parties jointes par "@" ou "+") est valide
+    si chacune de ses parties figure dans le tagset.
+Q5. Le dictionnaire de la partie 12 du notebook : à partir du train, associe à
+    chaque forme son `pos` le plus fréquent ; calcule la proportion de `pos`
+    corrects sur le test in-domain puis out-of-domain ; ignore les formes
+    absentes du dictionnaire et affiche la couverture de chaque test.
+- Interdits : toute commande autre que `uv run python scripts/analyser.py` ;
+lire `consignes.md`, `RAPPORT.md`, `.env` ou tout fichier hors de `data/` et
+`scripts/` ; toute fonction pandas hors de la skill `pandas-tuto` ; toute boucle
+`for` sur les lignes d'un tableau ; tout chiffre qui ne vient pas de la sortie
+du script.
+- Tu disposes de 3 essais au plus (3 lancements du script).
+- Réponds en 5 lignes au plus : une ligne par question avec les chiffres obtenus,
+plus une ligne pour toute erreur restante.
+
 '''
 
 [tools.bash]
-allowlist = []   # TODO : une seule commande
+allowlist = ["uv run python scripts/analyser.py"]
